@@ -1,11 +1,11 @@
-# Подключение библиотеки heaps
+# Connecting the heaps library
 -lib heaps
-# Подключение библиотеки hldx (работает только под Windows)
-# Альтернативно можно использовать hlsdl
+# Connecting the hldx library (runs on Windows only)
+# Alternatively, you can use hlsdl
 -lib hldx
-# Для работы с базой CastleDB нам понадобится библиотека castle
+# We'll need a castle library to work with CastleDB
 -lib castle
-# Задаем основной класс приложения с точкой входа
+# We borrow the primary class of the application with the entry point
 -main Game
-# Выходной файл
+# Output file
 -hl game.hl
