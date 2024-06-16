@@ -2,103 +2,103 @@ class Game extends hxd.App
 {
     static function main()
     {
-        // Инициализация системы ресурсов Heaps
+        // Heaps Resource System Initialization
         #if hl
-        // В HashLink будем работать с файлами локально
+        // In HashLink we will work with files locally
         hxd.Res.initLocal();
         #else
-        // В JavaScript будем использовать встраиваемые в js-файл данные
+        // In JavaScript we use the data embedded in the js file
         hxd.Res.initEmbed();
         #end
         new Game();
     }
 
-    // Инициализация проекта
+    // Project Initialization
     override function init() 
     {
-        // Загрузка данных для базы из файла data.cdb
+        // Uploading database data from data.cdb file
         Data.load(hxd.Res.data.entry.getText());
 
-        // Получаем данные о всех игровых уровнях, которые хранятся на листе levelData
+        // Receives data on all game levels that are stored in the levelData sheet
         var allLevels = Data.levelData;
-        // Загружаем данные о первом уровне (его индекс = 0), который хранится в базе
-        // и добавляем его отображение на 2d-сцену
+        // Loading data on the first level (its index = 0), which is stored in the database
+        // and add its display to the 2d-scene
         var level = new h2d.CdbLevel(allLevels, 0, s2d);
 
-        // Доступ к каждому из тайловых слоев уровня
+        // Access to each of the back layers of the level
         for (layer in level.layers)
         {
             trace(layer.name);
         }
 
-        // Также можно запросить тайловый слой по его имени
+        // You can also request a tail layer by its name
         var objectsLayer = level.getLevelLayer("objects");
 
-        // Посмотрим размеры уровня в тайлах:
+        // Let's look at the size of the level in tailax:
         trace(level.width);
         trace(level.height);
 
-        // Определяем размер тайла на уровне:
+        // We determine the size of the hole at the level:
         var tileSize:Int = level.layers[0].tileset.size;
 
-        // В этот массив будем добавлять наших npc
+        // In this array we will add our npc
         var npcs:Array<h2d.Bitmap> = [];
 
-        // Итерируем по всем npc на первом уровне.
-        // Здесь all - это список всех строк в таблице allLevels
+        // All NPCs at the first level.
+        // Here all is a list of all rows in the allLevels table
         for (npc in allLevels.all[0].npcs)
         {
-            // У npc может быть задан item, который является ссылкой 
-            // на тип item с полями id и tile
+            // npc may have an item that is a link 
+            // on item type with pole id and tile
             if (npc.item != null)
             {
                 trace("NPC Item: " + npc.item.id);
             }
 
-            // У npc есть поле kind, являющееся ссылкой 
-            // на тип (лист в таблице) npc с полями: id, name, image и т.д.
-            // Нас интересует поле image с типом Tile
-            // У таких полей есть свойства size, file, x, y, ?width, ?height
+            // npc has a kind pole that is a reference 
+            // to type (list in table) npc with poles: id, name, image, etc.
+            // We are interested in pool image with type Tile
+            // Such fields have the properties size, file, x, y,?width,?height
             var npcImage = npc.kind.image;
 
-            // Определяем размер тайла в изображении
+            // Determine the size of the backbone in the image
             var npcTileSize = npc.kind.image.size;
 
-            // Свойства тайла width и height являются необязательными:
+            // The width and height tail properties are optional:
             var npcWidth = (npcImage.width == null) ? 1 : npcImage.width;
             var npcHeight = (npcImage.height == null) ? 1 : npcImage.height;
 
-            // Загружаем файл изображения, из которого берется тайл для npc
+            // Uploading image file from which to take a file for npc
             var image = hxd.Res.load(npcImage.file).toImage();
-            // И создаем из изображения тайл с необходимыми параметрами
+            // And we create from the image of the dwarf with the necessary parameters
             var npcTileX = npcImage.x * npcTileSize;
             var npcTileY = npcImage.y * npcTileSize;
             var npcTileWidth = npcWidth * npcTileSize;
             var npcTileHeight = npcHeight * npcTileSize;
             var npcTile = image.toTile().sub(npcTileX, npcTileY, npcTileWidth, npcTileHeight);
 
-            // Используем этот тайл для создания объекта на сцене
+            // Use this widget to create an object on the stage
             var b = new h2d.Bitmap(npcTile, s2d);
-            // Позиционируем объект на сцене в соответствии данными из редактора
+            // Position the object on the scene according to the data from the editor
             b.x = tileSize * npc.x - (npcWidth - 1) * npcTileSize;
             b.y = tileSize * npc.y - (npcHeight - 1) * npcTileSize;
 
             npcs.push(b);
         }
 
-        // Создаем тайл и объект TileGroup, с помощью которых будем отображать слой
+        // Create a TileGroup object to display the layer
         var colorTile = h2d.Tile.fromColor(0x0000ff, 16, 16, 0.5);
         var triggerGroup = new h2d.TileGroup(colorTile, s2d);
         
-        // Получаем данные слоя triggers у уровня с идентификатором FirstVillage
-        // (если в таблице нет столбца с типом Unique Identifier, 
-        // то для такой таблицы возможно только итерирование с помощью свойства all)
+        // Combine the triggers layer data at the level with the FirstVillage ID
+        // (if there is no Unique Identifier column in the table, 
+        // then for such a table it is only possible to iterate using the property all)
         var triggers = allLevels.get(FirstVillage).triggers;
 
-        // Итерируем по всем заданным областям
+        // Iterate by all specified areas
         for (trigger in triggers)
         {
-            // В зависимости от типа триггера можем делать все что угодно
+            // We can do anything depending on the type of trigger
             switch (trigger.action)
             {
                 case ScrollStop:
@@ -120,42 +120,42 @@ class Game extends hxd.App
             }
         }
 
-        // Берем строку с идентификатором Full на странице collide
-        // и читаем в этой строке свойство icon, 
-        // используя которое загружаем изображение
+        // Take the line with the Full ID on the collide page
+        // and we read in this line the property icon, 
+        // using which we load the image
         var collideImage = hxd.Res.load(Data.collide.get(Full).icon.file).toImage();
-        // Создаем группу для отображения свойства collide
+        // Create a group to display the collide property
         var collideGroup = new h2d.TileGroup(collideImage.toTile(), s2d);
         
-        // Читаем свойство collide у всех слоев уровня:
+        // We read the collide in all layers of the level:
         var tileProps = level.buildStringProperty("collide");
-        // buildStringProperty - возвращает массив строк,
-        // длина этого массива равна количеству тайлов на уровне.
-        // Также доступен метод buildIntProperty, возвращающий массив Int'ов.
-        // Кроме того, свойства можно считывать не только у всего уровня, 
-        // но и у каждого из слоев по отдельности - для этого у слоев есть
-        // одноименные методы.
+        // buildStringProperty - returns a string set,
+        // The length of this array is equal to the number of tails on the level.
+        // Also available is the buildIntProperty method, which returns a set of Int's.
+        // Besides, properties can be read not only at the entire level, 
+        // but also each of the clusters separately - for this the layers have
+        // methods of the same name.
 
-        // Создаем тайлы для отображения свойств на экране
+        // Create backgammon to display properties on the screen
         for (ty in 0...level.height)
         {
             for (tx in 0...level.width)
             {
                 var index = tx + ty * level.width;
 
-                // Свойство тайла в позиции (tx, ty)
+                // Position tail property (tx, ty)
                 var tileProp = tileProps[index];
 
                 if (tileProp != null)
                 {
-                    // Считываем данные со страницы collide для соответствующего типа тайла
+                    // We read data from the collide page for the corresponding type of tail
                     var collideData = Data.collide.get(cast tileProp);
                     var collideIcon = collideData.icon;
                     var collideSize = collideIcon.size;
 
-                    // создаем тайл
+                    // Create an image
                     var collideTile = collideImage.toTile().sub(collideIcon.x * collideSize, collideIcon.y * collideSize, collideSize, collideSize);
-                    // и добавляем его на экран
+                    // and we get it to the screen
                     collideGroup.addAlpha(tileSize * tx, tileSize * ty, 0.4, collideTile);
                 }
             }
@@ -163,28 +163,28 @@ class Game extends hxd.App
 
         trace(tileProps.length);
 
-        // Внимание: следующий пример заработает только если
-        // вы замените файл CdbLevel в Heaps на этот файл:
+        // Attention: the sliding example will only work if
+        // you swap the CdbLevel file in Heaps to this file:
         // https://github.com/Beeblerox/heaps/blob/patch-1/h2d/CdbLevel.hx
         /*
-        // Словарь с группами тайлов
+        // Dictionary with group of tails
         var tileGroups = objectsLayer.tileset.groups;
 
-        // Просто считываем размеры группы в тайлах
+        // We're just reading group sizes in tailax
         for (key in tileGroups.keys())
         {
             var group = tileGroups.get(key);
             trace('$key: ${group.x}; ${group.y}; ${group.width}; ${group.height}');
         }
         
-        // Покажем на экране анимацию из тайлов группы anim_fall
+        // Show animation from anim_fall greype tails on the screen
         var animFall = tileGroups.get("anim_fall");
         var animTiles = animFall.tile.gridFlatten(animFall.tileset.size);
         var anim = new h2d.Anim(animTiles, 10, s2d);
-        // Конец примера с загрузкой группы тайлов
+        // The end of the example with the load of the tail group
         */
         
-        // Итерирование по всем строкам на листе collide
+        // Rotate all rows on the collide sheet
         /*for (coll in Data.collide.all)
         {
             trace(coll.id);
@@ -196,19 +196,19 @@ class Game extends hxd.App
         {
             var name = image.name;
 
-            // В примере на листе images есть столбец stats,
-            // имеющий тип Flags.
-            // здесь я хотел бы показать как работать с таким типом в Haxe.
-            // У объектов такого типа есть метод has(), позволяющий
-            // определить выставлен ли определенный флаг 
+            // In the example of the images sheet there is a column stats, 
+            // having the type Flags. 
+            // here I would like to show how to work with this type in Haxe.
+            // Objects of this type have a method has(), allowing 
+            // to determine whether a particular flag is displayed 
             var canClimb = image.stats.has(canClimb);
-            // или так:
+            // or so:
             canClimb = image.stats.has(Data.Images_stats.canClimb);
-            // Читаем значения остальных флагов:
+            // We read the values of the remaining flags:
             var canEatBamboo = image.stats.has(canEatBamboo);
             var canRun = image.stats.has(canRun);
 
-            // А также есть метод-итератор, позволяющий прочитать значения флагов
+            // And there is also a method-iterator that allows you to read the values of flags
             for (stat in image.stats.iterator())
             {
                 trace("stat: " + stat);
@@ -219,19 +219,19 @@ class Game extends hxd.App
             trace("canEatBamboo: " + canEatBamboo);
             trace("canRun: " + canRun);
 
-            // Используем загруженный Image для создания экранного объекта
+            // Use loaded Image to create a screen object
             var tile = images.get(image.image).toTile();
             var b = new h2d.Bitmap(tile, s2d);
             b.x = image.x;
             b.y = image.y;
         }
 
-        // Проходим по всем npc
+        // We're going through all the NPCs.
         for (npc in Data.npc.all)
         {
             trace(npc.type);
 
-            // В зависимости от значений поля type можем делать что хотим:
+            // Depending on the value of the type field, we can do what we want:
             switch (npc.type)
             {
                 case Data.Npc_type.Normal:
@@ -242,14 +242,14 @@ class Game extends hxd.App
                     trace("Ehm, i don't know what to say...");
             }
 
-            // загружаем текст
+            // download text
             trace(hxd.Res.load(npc.datafile).toText());
         }
 
-        // enum, сгенерированный библиотекой castle
+        // enum generated by the castle library
         trace(Data.Npc_type.Normal);
 
-        // У созданного enum’а можно посмотреть список имен его значений:
+        // In the created enum you can see a list of names of its values:
         trace(Data.Npc_type.NAMES);
 
         for (item in Data.item.all)
@@ -259,24 +259,24 @@ class Game extends hxd.App
     }
 
     /**
-     * Загрузка изображений из img-файла 
+     * Loading images from img file 
      **/
     function loadImagesFromImg(fileName:String):Map<String, hxd.res.Image>
     {
         var images = new Map<String, hxd.res.Image>();
 
-        // Загружаем img-файл и парсим его
+        // Download the img file and parse it
         var jsonData = haxe.Json.parse(hxd.Res.load(fileName).toText());
         var fields = Reflect.fields(jsonData);
 
-        // Проходим по всем полям полученного объекта
+        // We go through all the fields of the obtained object
         for (field in fields)
         {
             var imgString:String = Reflect.field(jsonData, field);
-            // удаляем префикс, который CastleDB добавляет перед данными изображения
+            // remove the prefix that CastleDB adds before the image data
             imgString = imgString.substr(imgString.indexOf("base64,") + "base64,".length);
 
-            // Декодируем данные изображения и загружаем их в Image (контейнер данных изображения)
+            // Decode the image data and upload it to Image (image data container)
             var bytes = haxe.crypto.Base64.decode(imgString);
             var bytesFile = new hxd.fs.BytesFileSystem.BytesFileEntry(field, bytes);
             var image = new hxd.res.Image(bytesFile);
