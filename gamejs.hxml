@@ -1,8 +1,8 @@
-# Подключение библиотеки heaps
+# Connecting the heaps library
 -lib heaps
 -lib castle
-# Задаем основной класс приложения с точкой входа
+# We borrow the primary class of the application with the entry point
 -main Game
 -D dump=pretty
-# Выходной файл
+# Output file
 -js game.js
